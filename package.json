@@ -10,20 +10,27 @@
     "test": "cd backend && mocha --timeout 10s --exit --inline-diffs",
     "start": "node ./backend/server.js",
     "dev": "cd frontend && react-scripts build && cd .. && nodemon ./backend/server.js",
-    "build": "cd frontend && react-scripts build"
+    "build": "cd frontend && react-scripts build --em.main=../backend/server.js",
+    "start": "concurrently \"BROWSER=none npm run dev\" \"wait-on http://localhost:3001 && electron .\"",
+    "electron-dev": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3001 && electron .\"",
+    "postinstall": "electron-builder install-app-deps",
+    "electron-pack": "electron-builder -l",
+    "preelectron-pack": "cd frontend && react-scripts build",
+    "dist": "electron-builder"
   },
-  "author": "CSC302 Fake Birds",
+  "author": "CSC302 Fake Birds <fakebirds@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/csc302-spring-2020/proj-FakeBirds/issues"
   },
-  "homepage": "https://github.com/csc302-spring-2020/proj-FakeBirds#readme",
+  "homepage": "./frontend",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.0",
     "bootstrap": "4.4.1",
+    "concurrently": "^5.1.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
@@ -36,14 +43,26 @@
     "react-dom": "^16.13.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.0",
-    "xml2js": "^0.4.23",
-    "styled-components": "^5.1.0",
+    "wait-on": "^4.0.1",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "@popperjs/core": "^2.1.1",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "electron": "1.4.15",
+    "electron-builder": "^22.4.1",
+    "electron-is-dev": "^1.1.0",
+    "electron-packager": "^14.2.1",
+    "jquery": "^3.4.1",
     "mocha": "^7.1.1",
     "multer": "^1.4.2",
     "nodemon": "^2.0.2",
-    "supertest": "^4.0.2"
+    "popper.js": "^1.16.1",
+    "styled-components": "^5.1.0",
+    "supertest": "^4.0.2",
+    "typescript": "^3.8.3",
+
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -59,5 +78,44 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "main": "./frontend/public/electron.js",
+  "build": {
+    "files": [
+      "/frontend/public/*",
+      "/frontend/build/**/*",
+      "package.json",
+      "node_modules/**/*",
+      "**/*",
+      "build/icon.*"
+    ],
+    "directories": {
+      "buildResources": "./frontend/build"
+    },
+    "appId": "yourappid",
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "squirrel",
+      "icon": "build/icon.ico"
+    }
   }
 }

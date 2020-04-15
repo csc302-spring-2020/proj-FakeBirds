@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 var multer = require("multer");
 var upload = multer({ dest: "uploads/" });
 
-const { mongoose } = require("./db/mongoose");
+const { mongoose } = require("../../backend/db/mongoose");
 
 const expressApp = express();
 
@@ -26,13 +26,12 @@ expressApp.use(function (req, res, next) {
 });
 
 /* Routes from router */
-const patientRoutes = require("./routes/patient");
-const formRoutes = require("./routes/form");
-const accountRoutes = require("./routes/account");
+const patientRoutes = require("../../backend/routes/patient");
+const formRoutes = require("../../backend/routes/form");
+const accountRoutes = require("../../backend/routes/account");
 /* Routes from router end */
 
-expressApp.use(bodyParser.json({ limit: "50mb" }));
-expressApp.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+expressApp.use(bodyParser.json());
 
 /* Server Resource Routes */
 expressApp.use("/api/v1/patient", patientRoutes);
@@ -41,9 +40,9 @@ expressApp.use("/api/v1/account", accountRoutes);
 /* Server Resource Routes End */
 
 /* Frontend Resource Routes */
-expressApp.use(express.static(path.resolve(__dirname, "../frontend/build")));
+expressApp.use(express.static(path.resolve(__dirname, "..//build")));
 expressApp.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+  res.sendFile(path.resolve(__dirname, "../build/index.html"));
 });
 
 const port = process.env.PORT || 3001;
@@ -67,7 +66,7 @@ function createWindow() {
   mainWindow.loadURL(
     isDev
       ? "http://localhost:3001"
-      : `file://${path.join(__dirname, "../frontend/build/index.html")}`
+      : `file://${path.join(__dirname, "../build/index.html")}`
   );
   mainWindow.on("closed", () => (mainWindow = null));
 }

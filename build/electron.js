@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 var multer = require("multer");
 var upload = multer({ dest: "uploads/" });
 
-const { mongoose } = require("./db/mongoose");
+const { mongoose } = require("../backend/db/mongoose");
 
 const expressApp = express();
 
@@ -26,13 +26,12 @@ expressApp.use(function (req, res, next) {
 });
 
 /* Routes from router */
-const patientRoutes = require("./routes/patient");
-const formRoutes = require("./routes/form");
-const accountRoutes = require("./routes/account");
+const patientRoutes = require("../backend/routes/patient");
+const formRoutes = require("../backend/routes/form");
+const accountRoutes = require("../backend/routes/account");
 /* Routes from router end */
 
-expressApp.use(bodyParser.json({ limit: "50mb" }));
-expressApp.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+expressApp.use(bodyParser.json());
 
 /* Server Resource Routes */
 expressApp.use("/api/v1/patient", patientRoutes);
