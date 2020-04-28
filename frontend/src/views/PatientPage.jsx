@@ -1,8 +1,69 @@
 import React, { Component } from "react";
-import { Form, Button, Col, Table, Image} from "react-bootstrap";
-import goBack from "../img/go-back-button.png";
+import { Button, Image} from "react-bootstrap";
+import goBack from "../img/go-back-button.svg";
+import styled from "styled-components/macro";
 import alertIcon from "../img/alert-patient-page.png";
 import axios from "axios";
+import Tippy from '@tippy.js/react';
+import 'tippy.js/dist/tippy.css';
+
+const TableContainer = styled.div`
+    margin: 24px;
+    padding: 12px;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    background-color: #5495c9;
+  `;
+
+const Table = styled.table`
+    z-index: 9999;
+    z-index: 1;
+    width: 100%;
+    font-size: 20px;
+    color: #fff;
+    background-color: #5495c9;
+    th,
+    td {
+        text-align: left;
+        padding: 8px;
+    }
+    td:last-child {
+        text-align: center;
+    }
+    th {
+        background-color: #e59c63;
+    }
+    tr:nth-child(odd) {
+        background-color: #5495c9;
+    }
+    tr:nth-child(even) {
+        background-color: #639ece;
+    }
+`;
+
+const SubmitButton = styled.button`
+  position: relative;
+  width: 150px;
+  height: 50px;
+  margin: 0 auto;
+  display: block;
+  background: #e59c63;
+  border-radius: 8px;
+  font-weight: 800;
+  font-family: Arial;
+  font-size: 18px;
+  color: #ffffff;
+  border: 0px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  &:hover {
+    background: #ce8c59;
+  }
+`;
+
+
+
 
 
 export default class PatientPage extends Component {
@@ -17,6 +78,8 @@ export default class PatientPage extends Component {
         showTr_2: false, 
         showAlert_1: false,
         showAlert_2: false,
+        inputBorderWidth: 5,
+        inputFontWeight: "normal"
       }
 
       this.retireveAllRelatedForms = this.retireveAllRelatedForms.bind(this);
@@ -25,6 +88,7 @@ export default class PatientPage extends Component {
     }
 
     retrieveAllPatients = (event) => {
+        console.log("hello" + this.state.patientName)
         event.preventDefault();
         this.setState({
             showTr_1: false,
@@ -95,78 +159,211 @@ export default class PatientPage extends Component {
             height: 50,
             marginRight: 0,
             display : this.state.showTr_2 ? 'block':'none',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            top: '50%', 
+            transform: 'translateY(-50%)',
+            position:'absolute'
         }
         const alertStyling = {
             width: 30,
             height: 30,
-            float: 'left',
-            marginRight:5
+            paddingLeft: 0,
+            paddingRight: 0
         }
 
         const alertBoxStyling_1 = {
-            marginLeft:27,
-            width:400,
-            display : this.state.showAlert_1 ? 'block':'none',
+            width:40,
+            display: this.state.showAlert_1 ? 'block':'none',
+            position: 'absolute',
+            transform: 'translateY(-50%)',
+            top:'50%'
         }
 
         const alertBoxStyling_2 = {
-            marginLeft:27,
-            width:400,
             display : this.state.showAlert_2 ? 'block':'none',
+            left:'50%',
+            position: 'absolute',
+            transform: 'translateX(-50%)',
         }
+
+        const inputStyle = {
+            width: 300,
+            fontSize: '20px',
+            fontFamily: 'Arial',
+            caretColor: 'transparent',        
+            color: '#e59c63',
+            fontWeight: this.state.inputFontWeight,
+            boxSizing: 'border-box',
+            height:40,
+            border:'none',
+            textAlign:'center'
+        }
+
+        const borderStyle={
+            borderWidth: this.state.inputBorderWidth,
+            borderStyle: 'solid',
+            borderColor: '#e59c63',
+            borderRadius: 8,
+            boxShadow: "0px 1px 8px rgba(0, 0, 0, 0.2)",
+            height: 40,
+            boxSizing: 'content-box',
+            transition: 'border-width 0.5s linear'
+        }
+
 
         return (
             <div>
                 <div className="App-header">
-
-
-                    <div>
-                    <h1>Enter Patient Name:</h1>
-                    <Form onSubmit={this.retrieveAllPatients} >
-                        <Form.Row>
-                            <Col>
-                            <Form.Group>
-                            <Form.Label>Patient Name:</Form.Label>
-                            <Form.Control
-                            value={this.state.name}
-                            onChange={this.enterPatientName}
-                            />
-                            </Form.Group>
-                            </Col>
-                            <Col>
-                            <Button
-                            variant="primary"
-                            type="submit"
-                            style={{ marginTop: "32px", marginLeft: "6px", float: 'left', backgroundColor:'#e59c63'}}
-                            >
-                            Submit
-                            </Button>
+                    <div style={{top: '20%', position: 'absolute'}}> 
+                        <div style={{float: 'left', paddingRight: 30}}>
+                            <div style={borderStyle}>
+                                <div style={{height: '100%', float: 'left', boxSizing:'border-box'}}>
+                                    <input 
+                                    type="text" 
+                                    placeholder=" Patient Name " 
+                                    value={this.state.patientName}
+                                    onChange={this.enterPatientName}
+                                    onFocus={(e) => {
+                                        e.target.placeholder = "";
+                                        this.setState({
+                                            inputBorderWidth: 8,
+                                            inputFontWeight: "bold"
+                                        })}} 
+                                    onBlur={(e) => {
+                                        e.target.placeholder = "      Patient Name";
+                                        this.setState({
+                                            inputBorderWidth: 5,
+                                            inputFontWeight: "normal"
+                                        })
+                                    }}
+                                    style={inputStyle} />
+                                </div>
+                                <div style={{width:40, float:'left', height:'100%', boxSizing:'border-box', backgroundColor:'white', pisition: 'relative'}}>
+                                    <div style={alertBoxStyling_1}>
+                                        <Tippy content={<span style={{color: 'red'}}>We can't find such patient</span>}>
+                                            <Image src={alertIcon} style={alertStyling}/>
+                                        </Tippy>
+                                    </div> 
+                                </div>
+                                
+                            </div>
                             
-                            </Col>
-                        </Form.Row>     
-                    </Form>
-                    </div>
+                            
 
-                    <div>
-                        <div style={{float: 'left', height:70, width:70}}>
-                            <div style={{position:'absolute', left:450}}><Image src={goBack} style={goBackStyling} onClick={this.goBackToPreviousTable}/></div>
+                           
                         </div>
-
                         
                         <div style={{float: 'left'}}>
+                            <SubmitButton  onClick={this.retrieveAllPatients} style={{outline: 'none'}}>
+                            Search
+                            </SubmitButton>
+                        </div>
+                        
+                        
 
-                            <div style={alertBoxStyling_1}>
+                    </div>
+
+                    <div style={{top: '30%', position: 'absolute', display:'flex'}}>
+
+                        <div style={{width:50, position:'relative', float: 'left'}}>
+                                <Image src={goBack} style={goBackStyling} onClick={this.goBackToPreviousTable}/>
+                        </div>
+
+                        <div style={{float: 'left', position:'relative'}}> 
+                            <TableContainer style={{display : this.state.showTr_1 ? 'block':'none'}}>
+                                <Table>
+                                    <div>
+                                    <thead >
+                                        <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone #</th>
+                                        <th></th>
+                                       
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {this.state.allPatients.map(patient => (
+                                            <tr>
+                                            <td style={{minWidth: 100}}>{patient.name}</td>
+                                            <td style={{minWidth: 100}}>{patient.email}</td>
+                                            <td style={{minWidth: 100}}>{patient.phone}</td>
+                                            <td style={{minWidth: 100}}>
+                                                <Button style={{backgroundColor:'#e59c63', border: 'none'}} onClick={() => this.retireveAllRelatedForms(patient.patientID)}>Choose</Button>
+                                            </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    </div>
+                                </Table>
+                            </TableContainer>
+
+                            
+                            <div style={alertBoxStyling_2}>
+                                <Image src={alertIcon} style={{width: 30,
+                                                               height: 30,
+                                                               MarginRight: 5,
+                                                               float:'left'}}/>
+                                <p style={{float: 'left', marginLeft: 10}}>There is no such record</p>
+                            </div>
+                                            
+
+                            <TableContainer style={{display : this.state.showTr_2 ? 'block':'none'}}>
+                                <Table>
+                                    <div>
+                                    
+                                    <thead >
+                                        <tr>
+                                        <th >Filler</th>
+                                        <th >Form</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {this.state.relatedForms.map(formObject => (
+                                            <tr>
+                                            <td style={{minWidth: 100}}>{formObject.filler}</td>
+                                            <td style={{minWidth: 100}}>
+                                                <Button style={{backgroundColor:'#e59c63', border: 'none'}}onClick={() => this.renderAPage(formObject.diagnosticID)}>Grab Form</Button>
+                                            </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    </div>
+                                </Table>
+                            </TableContainer>                                
+                        </div>
+                    </div>
+                            
+                    
+
+                    <div>
+
+                        {/* <div style={alertBoxStyling_1}>
                             <Image src={alertIcon} style={alertStyling}/>
                             <p style={{fontSize: 18, fontFamily: 'Arial'}}> We can't find such patient </p>
+                        </div> */}
+                        
+                        
+
+
+
+
+
+                           
+
+                        
+                        {/* <div>
+                            <div style={{ position:'relative', float: 'left'}}>
+                                <div style={{top: '50%', position:'absolute'}}>
+                                    <Image src={goBack} style={goBackStyling} onClick={this.goBackToPreviousTable}/>
+                                </div>
                             </div>
 
-                            <div> 
-                                <Table
-                                
-                                hover
-                                style={{ maxWidth: "max-content", backgroundColor: 'white', borderRadius: 7}}>
-                                    <div style={{display : this.state.showTr_1 ? 'block':'none'}}>
+                            <div style={{float: 'left'}}> 
+                                <TableContainer style={{display : this.state.showTr_1 ? 'block':'none'}}>
+                                <Table>
+                                    <div>
                                     <thead >
                                         <tr>
                                         <th >Name</th>
@@ -190,17 +387,17 @@ export default class PatientPage extends Component {
                                     </tbody>
                                     </div>
                                 </Table>
-
+                            </TableContainer>
+                                
+                            
                                 <div style={alertBoxStyling_2}>
                                 <Image src={alertIcon} style={alertStyling}/>
                                 <p style={{fontSize: 18, fontFamily: 'Arial'}}> We can't find the record </p>
                                 </div>
-
-                                <Table
-                                
-                                hover
-                                style={{ maxWidth: "max-content", backgroundColor: 'white', borderRadius: 7, position: 'absolute', left: 530}}>
-                                    <div style={{display : this.state.showTr_2 ? 'block':'none'}}>
+                            
+                            <TableContainer style={{display : this.state.showTr_2 ? 'block':'none'}}>
+                                <Table>
+                                    <div>
                                     
                                     <thead >
                                         <tr>
@@ -220,8 +417,16 @@ export default class PatientPage extends Component {
                                     </tbody>
                                     </div>
                                 </Table>
+                            </TableContainer>
+
+
+
+                                
                             </div>
-                        </div>
+
+
+
+                        </div> */}
                     </div>
                     
                     <div>
