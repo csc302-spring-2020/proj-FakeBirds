@@ -93,13 +93,13 @@ function parsingQuestion(questionInput) {
       moreInfo: item.ListItemResponseField ? true : false,
       ResponseField: null,
     }));
-    if (question.ListField[0].$) {
-      if (question.ListField[0].$.maxSelections) {
+    if (question.ListField[0]) {
+      questionBody = { is_radio: true, is_checkbox: false, options: options };
+      answerType = 2;
+
+      if (question.ListField[0].$ && question.ListField[0].$.maxSelections) {
         questionBody = { is_radio: false, is_checkbox: true, options: options };
         answerType = 3;
-      } else {
-        questionBody = { is_radio: true, is_checkbox: false, options: options };
-        answerType = 2;
       }
     }
   } else if (question.ResponseField) {

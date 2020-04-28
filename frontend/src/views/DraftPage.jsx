@@ -71,47 +71,42 @@ export default class DraftPage extends Component {
     });
   }
 
-  handleChange(value, questionID) {
+  handleChange(value, questionID, moreInfo = null) {
     if (this.draft === null) {
       return;
     }
 
     this.draft.sections.forEach((section) => {
-      if (this.findSectionAndUpdate(section, questionID, value)) {
-        return;
-      }
+      this.findSectionAndUpdate(section, questionID, value, moreInfo);
     });
   }
 
-  findSectionAndUpdate(section, questionID, value) {
+  findSectionAndUpdate(section, questionID, value, moreInfo) {
     section.questions.forEach((question) => {
-      if (this.findQuestionAndUpdate(question, questionID, value)) {
-        return true;
-      }
+      this.findQuestionAndUpdate(question, questionID, value, moreInfo);
     });
 
     section.subSections.forEach((subSection) => {
-      if (this.findSectionAndUpdate(subSection, questionID, value)) {
-        return true;
-      }
+      this.findSectionAndUpdate(subSection, questionID, value, moreInfo);
     });
-
-    return false;
   }
 
-  findQuestionAndUpdate(question, questionID, value) {
+  findQuestionAndUpdate(question, questionID, value, moreInfo) {
     if (question.questionID === questionID) {
       question.answerObject.answer = value;
-      return true;
+
+      if (moreInfo && question.questionBody) {
+        question.questionBody.options.forEach((option) => {
+          if ((option.optionID in moreInfo) && option.moreInfo) {
+            option.ResponseField = moreInfo[option.optionID];
+          }
+        });
+      }
     }
 
     question.dependentQuestions.forEach((dependentQuestion) => {
-      if (this.findQuestionAndUpdate(dependentQuestion, questionID, value)) {
-        return true;
-      }
+      this.findQuestionAndUpdate(dependentQuestion, questionID, value, moreInfo);
     });
-
-    return false;
   }
 
   saveDraft() {
@@ -164,7 +159,6 @@ export default class DraftPage extends Component {
             });
         } else {
           this.draft = response.data;
-          console.log(this.draft);
           this.forceUpdate(); // Force render so that the form is displayed
         }
       })

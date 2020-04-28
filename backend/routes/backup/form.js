@@ -1,37 +1,16 @@
-const admin = require("../models/admin.model");
-const form = require("../models/form.model");
-const draft = require("../models/draft.model");
-const patient = require("../models/patient.model");
+const router = require("express").Router();
+const admin = require("../../models/admin.model");
+const form = require("../../models/form.model");
+const draft = require("../../models/draft.model");
+const patient = require("../../models/patient.model");
 
-const parser = require("../XML/xmlParser.js");
+const parser = require("../../XML/xmlParser.js");
 const fs = require("fs");
 const log = console.log;
 const CryptoJS = require("crypto-js");
 
-/**
- * Form Controller
- *
- * @description :: Server-side logic for managing Forms.
- */
-
-function cryptEn(data) {
-  return new Promise((res, rej) => {
-    const encrypted = CryptoJS.AES.encrypt(data, "secret")
-      .toString()
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
-    res(encrypted);
-  });
-}
-
-function cryptDe(encrypted) {
-  return new Promise((res, rej) => {
-    const reAligning = encrypted.replace(/-/g, "+").replace(/_/g, "/");
-    res(CryptoJS.AES.decrypt(reAligning, "secret").toString(CryptoJS.enc.Utf8));
-  });
-}
-
-function create(req, res) {
+// Post new XML to be processed
+router.route("/import").post((req, res) => {
   // Take in XML
 
   fs.readFile(req.file.path, { encoding: "utf-8" }, function (e, file) {
@@ -65,18 +44,18 @@ function create(req, res) {
       res.status(500).send(e);
     }
   });
-}
+});
 
-// (destroy) one single object DELETE /:id
-function destroy(req, res) {
+router.route("/remove/:formID").delete((req, res) => {
   form.deleteOne({ formID: req.params.formID }).then((re) => {
     res
       .status(200)
       .send(`removed form - ${req.params.formID}`)
       .catch((e) => res.status(500).send(e.message));
   });
-}
-function searchForm(req, res) {
+});
+
+router.route("/search/:title").get((req, res) => {
   admin
     .findOne()
     .then((data) => {
@@ -91,10 +70,10 @@ function searchForm(req, res) {
     .catch((error) => {
       res.status(404).send(error.message);
     });
-}
+});
 
-// (read) all objects -- GET /
-function list(req, res) {
+// Get all available fillout forms
+router.route("/").get((req, res) => {
   admin
     .findOne()
     .then((data) => {
@@ -105,9 +84,27 @@ function list(req, res) {
     .catch((error) => {
       res.status(404).send(error.message);
     });
+});
+
+function cryptEn(data) {
+  return new Promise((res, rej) => {
+    const encrypted = CryptoJS.AES.encrypt(data, "secret")
+      .toString()
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+    res(encrypted);
+  });
 }
 
-function createDraft(req, res) {
+function cryptDe(encrypted) {
+  return new Promise((res, rej) => {
+    const reAligning = encrypted.replace(/-/g, "+").replace(/_/g, "/");
+    res(CryptoJS.AES.decrypt(reAligning, "secret").toString(CryptoJS.enc.Utf8));
+  });
+}
+
+// Get draft form specifically @formID @patientID
+router.route("/get/:formID/:patientID").get((req, res) => {
   form.findOne({ formID: req.params.formID }).then((data) => {
     cryptEn(
       req.params.formID.concat(" ", data.version, " ", req.params.patientID)
@@ -121,9 +118,10 @@ function createDraft(req, res) {
         res.status(404).send(error.message);
       });
   });
-}
+});
 
-function getFillable(req, res) {
+// Get fillable form specifically @formID
+router.route("/get/:formID").get((req, res) => {
   form
     .findOne({ formID: req.params.formID })
     .then((data) => {
@@ -132,9 +130,9 @@ function getFillable(req, res) {
     .catch((error) => {
       res.status(404).send(error.message);
     });
-}
+});
 
-function getDraft(req, res) {
+router.route("/draft/get/:diagnosticID").get((req, res) => {
   draft
     .findOne({ diagnosticID: req.params.diagnosticID })
     .then((draft) => {
@@ -143,9 +141,9 @@ function getDraft(req, res) {
     .catch((error) => {
       res.status(404).send(error.message);
     });
-}
+});
 
-function saveDraft(req, res) {
+router.route("/draft/save").post((req, res) => {
   draft
     .findOne({ diagnosticID: req.body.payload.diagnosticID })
     .then((exists) => {
@@ -212,15 +210,6 @@ function saveDraft(req, res) {
       }
     })
     .catch((e) => res.status(500).send(e.message));
-}
+});
 
-module.exports = {
-  searchForm,
-  create,
-  list,
-  createDraft,
-  getDraft,
-  getFillable,
-  destroy,
-  saveDraft,
-};
+module.exports = router;

@@ -13,8 +13,8 @@ export default class SDCSection extends Component {
   }
 
   // Send answers "further up" to the draft page, where we can save them
-  handleChange(value, questionID) {
-    this.props.onChange(value, questionID);
+  handleChange(value, questionID, moreInfo = null) {
+    this.props.onChange(value, questionID, moreInfo);
   }
 
   render() {

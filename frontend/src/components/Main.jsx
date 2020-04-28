@@ -23,7 +23,7 @@ export default class Main extends Component {
           style={{
             width: "100vw",
             height: "50px",
-            // backgroundColor: "#5495C9",
+            backgroundColor: "#5495C9",
           }}
         >
           <Link to="/">
