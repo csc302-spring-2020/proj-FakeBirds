@@ -31,6 +31,21 @@ describe("apiForm Testing", () => {
       });
   });
 
+  it("searches for a form", (done) => {
+    chai
+      .request(app)
+      .get("/api/v1/form/search/Thyroid")
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.allForms).to.deep.include({
+          _id: "5e96a02a068df2585ab18e55",
+          formID: "192ea396bce2a54c01913af105ba8c",
+          formTitle: "CCO Synoptic Template for Thyroid US",
+        });
+        done();
+      });
+  });
+
   it("gets all available fillout forms", (done) => {
     chai
       .request(app)
@@ -40,6 +55,16 @@ describe("apiForm Testing", () => {
         expect(res.body.allForms)
           .to.be.an("array")
           .and.to.have.lengthOf.above(0);
+        done();
+      });
+  });
+
+  it("get draft form", (done) => {
+    chai
+      .request(app)
+      .get("/api/v1/form/GET/e650c524a1a40b9bd21f67458c4227/0516ae2ce344167")
+      .end((err, res) => {
+        expect(res).to.have.status(200);
         done();
       });
   });
@@ -57,10 +82,12 @@ describe("apiForm Testing", () => {
       });
   });
 
-  it("get draft form", (done) => {
+  it("get presaved draft form", (done) => {
     chai
       .request(app)
-      .get("/api/v1/form/GET/e650c524a1a40b9bd21f67458c4227/0516ae2ce344167")
+      .get(
+        "/api/v1/form/draft/get/U2FsdGVkX1-dqjA-CqBElqv7oY7yVgNMAIC-WFdE_-LkutKWNJW7gAYnlx-MqXOrYgggPHt5xLKd1ehuQR0lBQDZ0Bsg-gzslgl3n9xNQVQ="
+      )
       .end((err, res) => {
         expect(res).to.have.status(200);
         done();
