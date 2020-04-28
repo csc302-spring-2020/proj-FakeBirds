@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { Form, Button, Col, Table } from "react-bootstrap";
+import { Form, Button, Col, Table, Image} from "react-bootstrap";
+import goBack from "../img/go-back-button.png";
+import alertIcon from "../img/alert-patient-page.png";
 import axios from "axios";
 
 
@@ -10,33 +12,63 @@ export default class PatientPage extends Component {
       this.state = {
         patientName: '',
         allPatients: [],
-        relatedForms: []
+        relatedForms: [],
+        showTr_1: false,
+        showTr_2: false, 
+        showAlert_1: false,
+        showAlert_2: false,
       }
 
       this.retireveAllRelatedForms = this.retireveAllRelatedForms.bind(this);
       this.renderAPage = this.renderAPage.bind(this);
+      this.goBackToPreviousTable = this.goBackToPreviousTable.bind(this);
     }
 
     retrieveAllPatients = (event) => {
         event.preventDefault();
+        this.setState({
+            showTr_1: false,
+            showTr_2: false,
+            showAlert_1: false,
+            showAlert_2: false
+        })
         axios.get(`http://localhost:3001/api/v1/patient/search/${this.state.patientName}`).then(res => {
-            this.setState({
-                allPatients: res.data
-            })
-            
+            const patientsData = res.data
+            if(patientsData.length !== 0){
+                this.setState({
+                    allPatients: patientsData,
+                    showTr_1: true
+                })
+            }else{
+                this.setState({
+                    showAlert_1: true
+                })   
+            }  
         })
     }
 
     retireveAllRelatedForms = (pID) => {
         let lengthOfPatients = this.state.allPatients.length
+        let flag = true
         for(let i = 0; i< lengthOfPatients; i++){
             if (this.state.allPatients[i].patientID === pID){
-                this.setState({
-                    relatedForms: this.state.allPatients[i].relatedForms
-                })
+                if(this.state.allPatients[i].relatedForms.length !== 0){
+                    this.setState({
+                        relatedForms: this.state.allPatients[i].relatedForms,
+                        showTr_2: true,
+                        showTr_1: false
+                    })
+                    flag = false
+                }
+                break  
             }
-            }
-
+        }
+        if (flag){
+            this.setState({
+                showAlert_2: true
+            })
+        }
+        
     }
 
     enterPatientName = (event) => {
@@ -46,90 +78,159 @@ export default class PatientPage extends Component {
      }
     
 
+    goBackToPreviousTable = () => {
+        this.setState({
+            showTr_1: true,
+            showTr_2: false
+        })
+    }
+
     renderAPage = (dID) =>{
-        window.open(`/draft/get/:diagnosticID `)
+        window.open(`/draft/${dID}`);
     }
 
     render() {
+        const goBackStyling = {
+            width: 50,
+            height: 50,
+            marginRight: 0,
+            display : this.state.showTr_2 ? 'block':'none',
+            cursor: 'pointer'
+        }
+        const alertStyling = {
+            width: 30,
+            height: 30,
+            float: 'left',
+            marginRight:5
+        }
+
+        const alertBoxStyling_1 = {
+            marginLeft:27,
+            width:400,
+            display : this.state.showAlert_1 ? 'block':'none',
+        }
+
+        const alertBoxStyling_2 = {
+            marginLeft:27,
+            width:400,
+            display : this.state.showAlert_2 ? 'block':'none',
+        }
+
         return (
             <div>
                 <div className="App-header">
-                <h1>Enter Patient ID:</h1>
-                <Form onSubmit={this.retrieveAllPatients}>
-                    <Form.Row>
-                        <Col>
-                        <Form.Group>
-                        <Form.Label>Patient Name:</Form.Label>
-                        <Form.Control
-                        value={this.state.name}
-                        onChange={this.enterPatientName}
-                        />
-                        </Form.Group>
-                        </Col>
-                        <Col>
-                        <Button
-                        variant="primary"
-                        type="submit"
-                        style={{ marginTop: "32px", marginLeft: "6px" }}
-                        >
-                        Submit
-                        </Button>
-                        </Col>
-                    </Form.Row>     
-                </Form>
 
-                <Table
-                striped
-                bordered
-                hover
-                variant="dark"
-                style={{ maxWidth: "300px" }}>
-                    <thead>
-                        <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone #</th>
-                        <th>Choose</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.state.allPatients.map(patient => (
-                            <tr>
-                            <td>{patient.name}</td>
-                            <td>{patient.email}</td>
-                            <td>{patient.phone}</td>
-                            <td>
-                                <Button onClick={() => this.retireveAllRelatedForms(patient.patientID)}>Choose</Button>
-                            </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                </Table>
 
-                <Table
-                striped
-                bordered
-                hover
-                variant="dark"
-                style={{ maxWidth: "300px" }}>
-                    <thead>
-                        <tr>
-                        <th>filler</th>
-                        <th>link</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.state.relatedForms.map(formObject => (
-                            <tr>
-                            <td>{formObject.filler}</td>
-                            <td>
-                                <Button>Link</Button>
-                            </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                </Table>
-                </div>           
+                    <div>
+                    <h1>Enter Patient Name:</h1>
+                    <Form onSubmit={this.retrieveAllPatients} >
+                        <Form.Row>
+                            <Col>
+                            <Form.Group>
+                            <Form.Label>Patient Name:</Form.Label>
+                            <Form.Control
+                            value={this.state.name}
+                            onChange={this.enterPatientName}
+                            />
+                            </Form.Group>
+                            </Col>
+                            <Col>
+                            <Button
+                            variant="primary"
+                            type="submit"
+                            style={{ marginTop: "32px", marginLeft: "6px", float: 'left', backgroundColor:'#e59c63'}}
+                            >
+                            Submit
+                            </Button>
+                            
+                            </Col>
+                        </Form.Row>     
+                    </Form>
+                    </div>
+
+                    <div>
+                        <div style={{float: 'left', height:70, width:70}}>
+                            <div style={{position:'absolute', left:450}}><Image src={goBack} style={goBackStyling} onClick={this.goBackToPreviousTable}/></div>
+                        </div>
+
+                        
+                        <div style={{float: 'left'}}>
+
+                            <div style={alertBoxStyling_1}>
+                            <Image src={alertIcon} style={alertStyling}/>
+                            <p style={{fontSize: 18, fontFamily: 'Arial'}}> We can't find such patient </p>
+                            </div>
+
+                            <div> 
+                                <Table
+                                
+                                hover
+                                style={{ maxWidth: "max-content", backgroundColor: 'white', borderRadius: 7}}>
+                                    <div style={{display : this.state.showTr_1 ? 'block':'none'}}>
+                                    <thead >
+                                        <tr>
+                                        <th >Name</th>
+                                        <th >Email</th>
+                                        <th >Phone #</th>
+                                        <th >Choose</th>
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {this.state.allPatients.map(patient => (
+                                            <tr>
+                                            <td style={{minWidth: 100}}>{patient.name}</td>
+                                            <td style={{minWidth: 100}}>{patient.email}</td>
+                                            <td style={{minWidth: 100}}>{patient.phone}</td>
+                                            <td style={{minWidth: 100}}>
+                                                <Button style={{backgroundColor:'#e59c63'}} onClick={() => this.retireveAllRelatedForms(patient.patientID)}>Choose</Button>
+                                            </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    </div>
+                                </Table>
+
+                                <div style={alertBoxStyling_2}>
+                                <Image src={alertIcon} style={alertStyling}/>
+                                <p style={{fontSize: 18, fontFamily: 'Arial'}}> We can't find the record </p>
+                                </div>
+
+                                <Table
+                                
+                                hover
+                                style={{ maxWidth: "max-content", backgroundColor: 'white', borderRadius: 7, position: 'absolute', left: 530}}>
+                                    <div style={{display : this.state.showTr_2 ? 'block':'none'}}>
+                                    
+                                    <thead >
+                                        <tr>
+                                        <th >Filler</th>
+                                        <th >Form</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {this.state.relatedForms.map(formObject => (
+                                            <tr>
+                                            <td style={{minWidth: 100}}>{formObject.filler}</td>
+                                            <td style={{minWidth: 100}}>
+                                                <Button style={{backgroundColor:'#e59c63'}}onClick={() => this.renderAPage(formObject.diagnosticID)}>Grab Form</Button>
+                                            </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    </div>
+                                </Table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                    
+                        
+
+                        
+                    </div>
+                </div>                     
             </div>
         );
     }

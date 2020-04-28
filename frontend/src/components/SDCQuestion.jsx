@@ -27,7 +27,6 @@ export default class SDCQuestion extends Component {
       is_multiple_choice_checkbox: false,
       is_int: false,
       is_text: false,
-      answer: props.question.answerObject.answer,
     };
 
     if (props.question.answerType === null) {
@@ -46,17 +45,13 @@ export default class SDCQuestion extends Component {
   }
 
   // Handle answers for this question
-  handleSelfChange(value) {
-    this.setState({
-      answer: value,
-    });
-
-    this.props.onChange(value, this.props.question.questionID);
+  handleSelfChange(value, moreInfo = null) {
+    this.props.onChange(value, this.props.question.questionID, moreInfo);
   }
 
   // Handle answers for dependent questions
-  handleDependentQuestionChange(value, questionID) {
-    this.props.onChange(value, questionID);
+  handleDependentQuestionChange(value, questionID, moreInfo = null) {
+    this.props.onChange(value, questionID, moreInfo);
   }
 
   render() {
@@ -94,7 +89,7 @@ export default class SDCQuestion extends Component {
                 <TrueFalseQuestionBody
                   question_id={this.props.question.questionID}
                   onChange={this.handleSelfChange}
-                  answer={this.state.answer}
+                  answer={this.props.question.answerObject.answer}
                 />
               )}
               {this.state.is_multiple_choice_radio && (
@@ -102,7 +97,7 @@ export default class SDCQuestion extends Component {
                   question_id={this.props.question.questionID}
                   question_options={this.props.question.questionBody.options}
                   onChange={this.handleSelfChange}
-                  answer={this.state.answer}
+                  answer={this.props.question.answerObject.answer}
                 />
               )}
               {this.state.is_multiple_choice_checkbox && (
@@ -111,18 +106,19 @@ export default class SDCQuestion extends Component {
                   question_options={this.props.question.questionBody.options}
                   onChange={this.handleSelfChange}
                   answer={this.state.answer}
+                  moreInfo={this.props.question.answerObject.answer}
                 />
               )}
               {this.state.is_int && (
                 <IntQuestionBody
                   onChange={this.handleSelfChange}
-                  answer={this.state.answer}
+                  answer={this.props.question.answerObject.answer}
                 />
               )}
               {this.state.is_text && (
                 <TextQuestionBody
                   onChange={this.handleSelfChange}
-                  answer={this.state.answer}
+                  answer={this.props.question.answerObject.answer}
                 />
               )}
             </Card.Text>
